@@ -22,18 +22,15 @@ AC_OUTPUT_POWER = Gauge('saj_ac_output_power', 'Current grid-connected power out
 AC_OUTPUT_VOLTAGE = Gauge('saj_ac_output_voltage', 'Current voltage generated on AC output (V)')
 AC_OUTPUT_CURRENT = Gauge('saj_ac_output_current', 'Current current :) generated on AC output (A)')
 DEVICE_TEMP = Gauge('saj_device_temperature', 'Device temperature (°C)')
-DEVICE_STATE = Enum('saj_device_running_state', 'Running state', states=['Waiting','Normal','Undefined'])
+DEVICE_STATE = Enum('saj_device_running_state', 'Running state', states=['Waiting','Normal','Error','Undefined'])
 
 def process_saj():
-    states = {0: 'Undefined', 1: 'Waiting', 2: 'Normal'}
-    list = [0] * 23
+    states = {0: 'Undefined', 1: 'Waiting', 2: 'Normal',-1: 'Error'}
     try:
         file = requests.get(SAJURL, auth=HTTPBasicAuth(SAJ_LOGIN, SAJ_PW)) 
         text = file.text
         list = text.split(',')
-    except requests.exceptions.RequestException as e:
-        list = [0] * 23
-    finally:
+
         TOTAL_GENERATED.set(int(list[1])/100)
         TOTAL_RUNNING_TIME.set(int(list[2])/10)
         TODAY_GENERATED.set(int(list[3])/100)
@@ -47,7 +44,8 @@ def process_saj():
             DEVICE_STATE.state(states[int(list[22])])
         else:
             DEVICE_STATE.state(states[0])
-    
+    except requests.exceptions.RequestException as e:
+        DEVICE_STATE.state(states[-1])
 
 def signal_handler(signal, frame):
         print('Pressed Ctrl+C')
