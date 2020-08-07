@@ -40,9 +40,9 @@ def process_saj():
         AC_OUTPUT_CURRENT.set(int(list[14])/100)
         DEVICE_TEMP.set(int(list[20])/10)
         if int(list[22]) in states:
-            DEVICE_STATE.set(states[int(list[22])])
+            DEVICE_STATE.state(states[int(list[22])])
         else:
-            DEVICE_STATE.set(states[0])
+            DEVICE_STATE.state(states[0])
     
 
 if __name__ == '__main__':
