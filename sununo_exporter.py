@@ -1,5 +1,4 @@
 from prometheus_client import start_http_server, Info, Summary, Enum, Counter, Gauge, Histogram
-import time
 import requests
 from requests.auth import HTTPBasicAuth
 
@@ -23,24 +22,27 @@ DEVICE_STATE = Enum('saj_device_running_state', 'Running state', states=['Waitin
 
 
 def process_saj():
-    file = requests.get(SAJURL, auth=HTTPBasicAuth(SAJ_LOGIN, SAJ_PW)) 
-    text = file.text
-    list = text.split(',')
     states = {0: 'Undefined', 1: 'Waiting', 2: 'Normal'}
-    
-    TOTAL_GENERATED.set(int(list[1])/100)
-    TOTAL_RUNNING_TIME.set(int(list[2])/10)
-    DAILY_GENERATED.set(int(list[3])/100)
-    DAILY_RUNNING_TIME.set(int(list[4])/10)
-    DC_INPUT_VOLTAGE.set(int(list[5])/10)
-    AC_OUTPUT_POWER.set(int(list[11]))
-    AC_OUTPUT_VOLTAGE.set(int(list[13])/10)
-    AC_OUTPUT_CURRENT.set(int(list[14])/100)
-    DEVICE_TEMP.set(int(list[20])/10)
-    if int(list[22]) in states:
-        DEVICE_STATE.set(states[int(list[22])])
-    else:
-        DEVICE_STATE.set(states[0])
+    try:
+        file = requests.get(SAJURL, auth=HTTPBasicAuth(SAJ_LOGIN, SAJ_PW)) 
+        text = file.text
+        list = text.split(',')
+    except requests.exceptions.RequestException as e:
+        list = [0] * 23
+    finally:
+        TOTAL_GENERATED.set(int(list[1])/100)
+        TOTAL_RUNNING_TIME.set(int(list[2])/10)
+        DAILY_GENERATED.set(int(list[3])/100)
+        DAILY_RUNNING_TIME.set(int(list[4])/10)
+        DC_INPUT_VOLTAGE.set(int(list[5])/10)
+        AC_OUTPUT_POWER.set(int(list[11]))
+        AC_OUTPUT_VOLTAGE.set(int(list[13])/10)
+        AC_OUTPUT_CURRENT.set(int(list[14])/100)
+        DEVICE_TEMP.set(int(list[20])/10)
+        if int(list[22]) in states:
+            DEVICE_STATE.set(states[int(list[22])])
+        else:
+            DEVICE_STATE.set(states[0])
     
 
 if __name__ == '__main__':
@@ -49,5 +51,3 @@ if __name__ == '__main__':
     # Generate some requests.
     while True:
         process_saj()
-
-
