@@ -22,7 +22,7 @@ AC_OUTPUT_POWER = Gauge('saj_ac_output_power', 'Current grid-connected power out
 AC_OUTPUT_VOLTAGE = Gauge('saj_ac_output_voltage', 'Current voltage generated on AC output (V)')
 AC_OUTPUT_CURRENT = Gauge('saj_ac_output_current', 'Current current :) generated on AC output (A)')
 DEVICE_TEMP = Gauge('saj_device_temperature', 'Device temperature (°C)')
-DEVICE_STATE = Enum('saj_device_running_state', 'Running state', states=['Waiting','Normal','Error','Undefined'])
+DEVICE_STATE = Gauge('saj_device_running_state', 'Device running state')
 
 def process_saj():
     states = {0: 'Undefined', 1: 'Waiting', 2: 'Normal',-1: 'Error'}
@@ -40,12 +40,9 @@ def process_saj():
         AC_OUTPUT_VOLTAGE.set(int(list[13])/10)
         AC_OUTPUT_CURRENT.set(int(list[14])/100)
         DEVICE_TEMP.set(int(list[20])/10)
-        if int(list[22]) in states:
-            DEVICE_STATE.state(states[int(list[22])])
-        else:
-            DEVICE_STATE.state(states[0])
+        DEVICE_STATE.set(int(list[22]))
     except requests.exceptions.RequestException as e:
-        DEVICE_STATE.state(states[-1])
+        DEVICE_STATE.set(-1)
 
 def signal_handler(signal, frame):
         print('Pressed Ctrl+C')
