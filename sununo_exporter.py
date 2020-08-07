@@ -1,6 +1,10 @@
+#!/usr/bin/env python
+
 from prometheus_client import start_http_server, Info, Summary, Enum, Counter, Gauge, Histogram
 import requests
 from requests.auth import HTTPBasicAuth
+import signal
+import sys
 
 # Input local SAJ IP, username and password here
 SAJ = 'http://IP'
@@ -20,9 +24,9 @@ AC_OUTPUT_CURRENT = Gauge('saj_ac_output_current', 'Current current :) generated
 DEVICE_TEMP = Gauge('saj_device_temperature', 'Device temperature (°C)')
 DEVICE_STATE = Enum('saj_device_running_state', 'Running state', states=['Waiting','Normal','Undefined'])
 
-
 def process_saj():
     states = {0: 'Undefined', 1: 'Waiting', 2: 'Normal'}
+    list = [0] * 23
     try:
         file = requests.get(SAJURL, auth=HTTPBasicAuth(SAJ_LOGIN, SAJ_PW)) 
         text = file.text
@@ -45,7 +49,12 @@ def process_saj():
             DEVICE_STATE.state(states[0])
     
 
+def signal_handler(signal, frame):
+        print('Pressed Ctrl+C')
+        sys.exit(0)
+
 if __name__ == '__main__':
+    signal.signal(signal.SIGINT, signal_handler)
     # Start up the server to expose the metrics.
     start_http_server(9200)
     # Generate some requests.
