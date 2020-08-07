@@ -32,8 +32,8 @@ def process_saj():
     finally:
         TOTAL_GENERATED.set(int(list[1])/100)
         TOTAL_RUNNING_TIME.set(int(list[2])/10)
-        DAILY_GENERATED.set(int(list[3])/100)
-        DAILY_RUNNING_TIME.set(int(list[4])/10)
+        TODAY_GENERATED.set(int(list[3])/100)
+        TODAY_RUNNING_TIME.set(int(list[4])/10)
         DC_INPUT_VOLTAGE.set(int(list[5])/10)
         AC_OUTPUT_POWER.set(int(list[11]))
         AC_OUTPUT_VOLTAGE.set(int(list[13])/10)
