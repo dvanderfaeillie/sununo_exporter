@@ -11,6 +11,7 @@ SAJ = 'http://IP'
 SAJURL = SAJ + '/status/status.php'
 SAJ_LOGIN = 'admin'
 SAJ_PW = 'admin'
+PORT = 9200
 
 # Creating metrics
 TOTAL_GENERATED = Gauge('saj_total_generated', 'Total amount of energy generated (kWh)')
@@ -73,7 +74,7 @@ def signal_handler(signal, frame):
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)
     # Start up the server to expose the metrics.
-    start_http_server(9200)
+    start_http_server(PORT)
     # Generate some requests.
     while True:
         process_saj()
