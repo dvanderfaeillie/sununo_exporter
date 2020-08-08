@@ -24,8 +24,17 @@ AC_OUTPUT_CURRENT = Gauge('saj_ac_output_current', 'Current current :) generated
 DEVICE_TEMP = Gauge('saj_device_temperature', 'Device temperature (°C)')
 DEVICE_STATE = Gauge('saj_device_running_state', 'Device running state')
 
+def represents_int(string):
+    """Returns whether a string contains an integer using try - except."""
+    try: 
+        int(string)
+        return True
+    except ValueError:
+        return False
+
 def process_saj():
-    states = {0: 'Undefined', 1: 'Waiting', 2: 'Normal',-1: 'Error'}
+    """Main script which processes the SAJ status.php into Prometheus metrics."""
+    states = {0: 'Undefined', 1: 'Waiting', 2: 'Normal', -1: 'Error'}
     try:
         file = requests.get(SAJURL, auth=HTTPBasicAuth(SAJ_LOGIN, SAJ_PW)) 
         text = file.text
@@ -40,7 +49,10 @@ def process_saj():
         AC_OUTPUT_VOLTAGE.set(int(list[13])/10)
         AC_OUTPUT_CURRENT.set(int(list[14])/100)
         DEVICE_TEMP.set(int(list[20])/10)
-        DEVICE_STATE.set(int(list[22]))
+        if represents_int(list[22]) and int(list[22]) in states:
+            DEVICE_STATE.set(int(list[22]))
+        else:
+            DEVICE_STATE.set(0)
     except requests.exceptions.RequestException as e:
         TOTAL_GENERATED.set('NaN')
         TOTAL_RUNNING_TIME.set('NaN')
@@ -54,8 +66,9 @@ def process_saj():
         DEVICE_STATE.set(-1)
 
 def signal_handler(signal, frame):
-        print('Pressed Ctrl+C')
-        sys.exit(0)
+    """Handles the input of console interrupt."""
+    print('Pressed Ctrl+C')
+    sys.exit(0)
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)
