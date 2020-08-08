@@ -42,6 +42,15 @@ def process_saj():
         DEVICE_TEMP.set(int(list[20])/10)
         DEVICE_STATE.set(int(list[22]))
     except requests.exceptions.RequestException as e:
+        TOTAL_GENERATED.set('NaN')
+        TOTAL_RUNNING_TIME.set('NaN')
+        TODAY_GENERATED.set('NaN')
+        TODAY_RUNNING_TIME.set('NaN')
+        DC_INPUT_VOLTAGE.set('NaN')
+        AC_OUTPUT_POWER.set(0)
+        AC_OUTPUT_VOLTAGE.set('NaN')
+        AC_OUTPUT_CURRENT.set('NaN')
+        DEVICE_TEMP.set('NaN')
         DEVICE_STATE.set(-1)
 
 def signal_handler(signal, frame):
