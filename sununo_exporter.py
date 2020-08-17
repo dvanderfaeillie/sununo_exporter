@@ -5,6 +5,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 import signal
 import sys
+import time
 
 # Input local SAJ IP, username and password here
 SAJ = 'http://IP'
@@ -78,3 +79,4 @@ if __name__ == '__main__':
     # Generate some requests.
     while True:
         process_saj()
+        time.sleep(5)
